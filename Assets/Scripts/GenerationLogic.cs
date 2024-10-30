@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -13,8 +14,9 @@ public class GenerationLogic : MonoBehaviour
     [SerializeField] private float tileSize;
     [SerializeField] private int maxTileX, maxTileY;
 
-    [SerializedField] private int depthToSpawnBossRoom = 4;
+    [SerializeField] private int depthToSpawnBossRoom = 4;
 
+    private LevelTree _currentLevel;
     
 
     
@@ -32,7 +34,7 @@ public class GenerationLogic : MonoBehaviour
 
     public RoomData ProcedurallyGenerateRoomData(int depth)
     {
-        flat randomVal = Random.Range(0f,1f)
+        float randomVal = UnityEngine.Random.Range(0f, 1f);
         RoomData data = new RoomData();
         //Testing Purposes
         data.sizeX = 5;
@@ -40,7 +42,7 @@ public class GenerationLogic : MonoBehaviour
         data.type = RoomType.Regular;
         if (depth == 0)
         {
-            data.type = RoomData.Starting;
+            data.type = RoomType.Starting;
         }
         if (depth >= depthToSpawnBossRoom && randomVal >= .6f )
         {
@@ -52,7 +54,7 @@ public class GenerationLogic : MonoBehaviour
 
     void GenerateLevel(int depth)
     {
-        LevelTree tree = new LevelTree();
+        _currentLevel = new LevelTree();
         
     }
 
@@ -62,7 +64,9 @@ public class GenerationLogic : MonoBehaviour
 public struct Node
 {
     LinkedList<Node> _children;
-    GameObject Room;
+    public GameObject Room;
+
+
 
 }
 
@@ -70,7 +74,16 @@ public class LevelTree
 {
     Node _root;
 
-    
+    public LevelTree(RoomData room)
+    {
+        _root = new Node();
+    }
+
+
+    public void GenerateTree(int depth,Func<int,RoomData> roomData)
+    {
+        _root.Room = RoomFactory.GenerateRoom();
+    }
 
 }
 
@@ -103,9 +116,9 @@ public static class RoomFactory
                 SR.color = data.type switch
                 {
                     RoomType.Starting => Color.green,
-                    RoomType.Regular => Color.orange,
+                    RoomType.Regular => Color.cyan,
                     RoomType.Boss => Color.red,
-                    _ => Colour.black,
+                    _ => Color.black,
                 };
             }
         }
